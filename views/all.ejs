@@ -1,0 +1,16 @@
+<%- include("header"); %>
+
+<h1>Students</h1>
+<table>
+
+<% students.forEach((student, i) => { %>
+    <tr>
+        <td><%= student[0] %></td>
+        <td><%= student[1] %></td>
+        <td><%= student[2] %></td>
+        <td><%= student[3] %></td>
+    </tr>
+<% }); %>
+</table>
+
+<%- include("footer"); %>
