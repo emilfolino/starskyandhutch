@@ -1,42 +1,123 @@
-const fs = require('fs');
+const { readdir, mkdir, readFile } = require('fs');
 
-const student = {
-    all: function all(req, res) {
-        const path = "./data/result/computer_matches.csv";
+const inPath = "./infiles";
+const outPath = "./outfiles";
 
-        fs.readFile(path, 'utf8', function (err, fileData) {
+const header = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Starsky And Hutch</title>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/atom-one-light.min.css">
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<main class="content">
+    <article>`;
+
+const footer = `</article>
+</main>
+<footer class="footer">
+    <div class="inner-footer">
+        <p>&copy; <a href="https://dbwebb.se">dbwebb</a></p>
+    </div>
+</footer>
+</body>
+</html>`;
+
+function parseFiles() {
+    const now = new Date().toJSON().substring(0, 19);
+
+    readdir(inPath, function (err, files) {
+        if (err) {
+            console.error(err);
+        }
+
+        files.forEach((course, i) => {
+            parseCourse(course, now);
+        });
+    });
+}
+
+function parseCourse(course, now) {
+    const courseDir = outPath + "/" + course + "_" + now;
+    mkdir(courseDir, function(err) {
+        if (err) {
+            console.error(err);
+        }
+
+        const inCourse = inPath + "/" + course;
+
+        readdir(inCourse, function (err, files) {
             if (err) {
-                return console.log(err);
+                console.error(err);
             }
 
-            let lines = fileData.split("\n");
+            const kmoms = files.filter(file => file !== "result");
 
-            let students = lines.filter(student => student).map(function(line) {
-                if (line) {
-                    let fields = line.split(";");
-
-                    return fields.slice(0, 4);
-                }
+            kmoms.forEach((kmom, i) => {
+                parseKMOM(kmom, inCourse, courseDir);
             });
-
-            const data = {
-                students: students
-            };
-
-            console.log(data);
-
-            return res.render("all", data);
         });
+    });
+}
 
+function parseKMOM(kmom, inCourse, courseDir) {
+    const kmomDir = inCourse + "/" + kmom;
+    const outKmomDir = courseDir + "/" + kmom;
 
-    },
-    compare: function compare(req, res) {
-        const data = {
+    mkdir(outKmomDir, function(err) {
+        if (err) {
+            console.error(err);
+        }
 
-        };
+        readdir(kmomDir, function (err, assignments) {
+            if (err) {
+                console.error(err);
+            }
 
-        return res.render("compare", data);
-    }
-};
+            assignments.forEach((assignment, i) => {
+                const resultFile = [
+                    inCourse,
+                    kmom,
+                    assignment,
+                    "result",
+                    "computer_matches.csv"
+                ].join("/");
 
-module.exports = student;
+                parseAssignment(
+                    assignment,
+                    kmomDir,
+                    outKmomDir,
+                    resultFile
+                );
+            });
+        });
+    });
+}
+
+function parseAssignment(assignment, kmomDir, outKmomDir, resultFile) {
+    mkdir(outKmomDir + "/" + assignment, function(err) {
+        if (err) {
+            console.error(err);
+            return;
+        }
+
+        readFile(resultFile, 'utf8' , (err, data) => {
+            if (err) {
+                console.error(err);
+                return;
+            }
+
+            const lines = data.split("\n");
+
+            lines.filter(line => line).forEach((line, i) => {
+                const fields = line.split(";");
+
+                console.log(fields);
+            });
+        });
+    });
+}
+
+parseFiles();
