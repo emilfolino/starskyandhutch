@@ -1,4 +1,4 @@
-const { readdir, mkdir, readFile } = require('fs');
+const { readdir, mkdir, readFile, writeFile, copyFile } = require('fs');
 
 const inPath = "./infiles";
 const outPath = "./outfiles";
@@ -9,7 +9,7 @@ const header = `<!DOCTYPE html>
     <meta charset="UTF-8">
     <title>Starsky And Hutch</title>
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/atom-one-light.min.css">
-    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="../style.css">
 </head>
 <body>
 <main class="content">
@@ -40,84 +40,143 @@ function parseFiles() {
 }
 
 function parseCourse(course, now) {
-    const courseDir = outPath + "/" + course + "_" + now;
-    mkdir(courseDir, function(err) {
+    const resultDir = inPath + "/" + course + "/result";
+    const submissionsDir = inPath + "/" + course + "/submissions";
+
+    const outCourseDir = outPath + "/" + course + "_" + now;
+
+    mkdir(outCourseDir, function(err) {
         if (err) {
             console.error(err);
         }
 
-        const inCourse = inPath + "/" + course;
-
-        readdir(inCourse, function (err, files) {
+        readdir(resultDir, function (err, kmoms) {
             if (err) {
                 console.error(err);
             }
-
-            const kmoms = files.filter(file => file !== "result");
 
             kmoms.forEach((kmom, i) => {
-                parseKMOM(kmom, inCourse, courseDir);
+                parseKMOM(kmom, resultDir, submissionsDir, outCourseDir);
             });
         });
     });
 }
 
-function parseKMOM(kmom, inCourse, courseDir) {
-    const kmomDir = inCourse + "/" + kmom;
-    const outKmomDir = courseDir + "/" + kmom;
+function parseKMOM(
+    kmom,
+    resultDir,
+    submissionsDir,
+    outCourseDir
+) {
+    const resultFile = resultDir + "/" + kmom + "/computer_matches.csv";
 
-    mkdir(outKmomDir, function(err) {
-        if (err) {
-            console.error(err);
-        }
-
-        readdir(kmomDir, function (err, assignments) {
-            if (err) {
-                console.error(err);
-            }
-
-            assignments.forEach((assignment, i) => {
-                const resultFile = [
-                    inCourse,
-                    kmom,
-                    assignment,
-                    "result",
-                    "computer_matches.csv"
-                ].join("/");
-
-                parseAssignment(
-                    assignment,
-                    kmomDir,
-                    outKmomDir,
-                    resultFile
-                );
-            });
-        });
-    });
-}
-
-function parseAssignment(assignment, kmomDir, outKmomDir, resultFile) {
-    mkdir(outKmomDir + "/" + assignment, function(err) {
+    readFile(resultFile, 'utf8' , (err, data) => {
         if (err) {
             console.error(err);
             return;
         }
 
-        readFile(resultFile, 'utf8' , (err, data) => {
+        const lines = data.split("\n").filter(line => line);
+
+        createIndex(outCourseDir, kmom, lines, submissionsDir);
+    });
+}
+
+function createIndex(outCourseDir, kmom, students, submissionsDir) {
+    const outDir = outCourseDir + "/" + kmom;
+
+    mkdir(outDir, function(err) {
+        if (err) {
+            console.error(err);
+            return;
+        }
+
+        copyFile("./public/style.css", outCourseDir + "/style.css", (err) => {
             if (err) {
-                console.error(err);
-                return;
+                throw err;
+            }
+        });
+
+        let htmlContent = header;
+
+        htmlContent += `<h1>Studenter: ${outDir}</h1>`;
+        htmlContent += `<table>
+                            <thead>
+                                <tr>
+                                    <th>Student 1</th>
+                                    <th>Student 2</th>
+                                    <th>Procent likhet</th>
+                                    <th>Procent likhet</th>
+                                </tr>
+                            </thead>
+                            <tbody>`;
+
+        students.forEach((student, i) => {
+            createComparison(outCourseDir, kmom, student, submissionsDir);
+
+            const data = student.split(";");
+
+            htmlContent += `<tr>
+                                <td>${data[0]}</td>
+                                <td>${data[1]}</td>
+                                <td>${data[2]}</td>
+                                <td>${data[3]}</td>
+                            </tr>`;
+        });
+
+        htmlContent += `    </tbody>
+                        </table>`;
+
+        htmlContent += footer;
+
+        writeFile(outDir + "/index.html", htmlContent, err => {
+            if (err) {
+                console.error(err)
+                return
             }
 
-            const lines = data.split("\n");
 
-            lines.filter(line => line).forEach((line, i) => {
-                const fields = line.split(";");
-
-                console.log(fields);
-            });
         });
     });
+}
+
+function createComparison(outCourseDir, kmom, student, submissionsDir) {
+    const filesDir = submissionsDir + "/" + kmom;
+
+    const fields = student.split(";");
+
+    let htmlContent = header;
+
+    htmlContent += `<h1>${fields[0]} vs. ${fields[1]}</h1>`;
+    htmlContent += `<p>${fields[2]} vs. ${fields[3]}</p>`;
+
+    const codeRelatedFields = fields.slice(4);
+
+    for (let i = 0; i < codeRelatedFields.length; i += 6) {
+
+    }
+
+    // htmlContent += "<div class='code-container'>";
+    //     htmlContent += "<div class='left-code'>";
+    //     htmlContent += leftCode;
+    //     htmlContent += "</div>";
+    //     htmlContent += "<div class='right-code'>";
+    //     htmlContent += rightCode;
+    //     htmlContent += "</div>";
+    // htmlContent += "</div>";
+
+    // readFile(resultFile, 'utf8' , (err, data) => {
+    //     if (err) {
+    //         console.error(err);
+    //         return;
+    //     }
+    //
+    //     const lines = data.split("\n").filter(line => line);
+    //
+    //     createIndex(outCourseDir, kmom, lines, submissionsDir);
+    // });
+
+    htmlContent += footer;
 }
 
 parseFiles();

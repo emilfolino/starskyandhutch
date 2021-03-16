@@ -33,26 +33,10 @@ p {
 }
 
 main {
-    width: 98%;
-    margin: 10px auto;
+    width: 960px;
+    margin: 20px auto;
     font-family: sans-serif;
     line-height: 1.4;
-}
-
-pre.lager {
-    background: #ace;
-    border-left: 3px solid #57c;
-    padding: 10px;
-    box-sizing: border-box;
-    margin-bottom: 1.4rem;
-    font-size: 1.2rem;
-    display: block;
-    overflow-x: auto;
-    color: #191919;
-}
-
-code.javascript {
-    font-size: 1rem;
 }
 
 h1 {
@@ -92,69 +76,30 @@ ol {
     padding: 4rem 0;
 }
 
-.inner-footer {
-    width: 98%;
-    margin: 0 auto;
-    font-family: sans-serif;
-}
-
 .inner-footer a {
+    width: 960px;
     color: white;
 }
 
-.terms {
-    margin-bottom: 5.6rem;
+table {
+    width: 100%;
+    border-collapse: collapse;
 }
 
-form {
-    margin-bottom: 5.6rem;
+tr:nth-child(2n) {
+    background-color: #eee;
 }
 
-label {
-    font-weight: bold;
-    display: block;
-    font-size: 1rem;
+th,
+td {
+    padding: 4px 12px;
 }
 
-input {
-    font-size: 1rem;
-    margin-bottom: 1.4rem;
+td {
+    border-collapse: collapse;
+    border-top: 1px solid #ccc;
 }
 
-input[type=text],
-input[type=submit] {
-    display: block;
-}
-
-.error {
-    padding: 1.4rem;
-    background: #eaa;
-    border-left: 3px solid #c55;
-}
-
-@media (min-width: 980px) {
-    main {
-        width: 960px;
-        margin: 20px auto;
-    }
-
-    .inner-footer {
-        width: 960px;
-    }
-
-    html {
-        font-size: 112.5%;
-    }
-}
-
-.danger {
-    background: #faa;
-    border-left: 3px solid #a33;
-    padding: 10px;
-    box-sizing: border-box;
-    margin-bottom: 1.4rem;
-    font-size: 1.2rem;
-    display: block;
-    overflow-x: auto;
-    color: #511;
+th {
+    text-align: left;
 }
