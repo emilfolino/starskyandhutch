@@ -17,6 +17,8 @@ body {
     display: flex;
     flex-direction: column;
     color: #333;
+    font-family: sans-serif;
+    line-height: 1.4;
 }
 
 .content {
@@ -35,8 +37,6 @@ p {
 main {
     width: 960px;
     margin: 20px auto;
-    font-family: sans-serif;
-    line-height: 1.4;
 }
 
 h1 {
@@ -76,8 +76,13 @@ ol {
     padding: 4rem 0;
 }
 
-.inner-footer a {
+.inner-footer {
     width: 960px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.inner-footer a {
     color: white;
 }
 
@@ -102,4 +107,19 @@ td {
 
 th {
     text-align: left;
+}
+
+.outer-container {
+    padding: 1rem;
+}
+
+.code-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.left-code,
+.right-code {
+    width: 49%;
 }
