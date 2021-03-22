@@ -1,7 +1,21 @@
 const fsPromises = require('fs').promises;
 
-const inPath = "./infiles";
-const outPath = "./outfiles";
+const argv = (() => {
+    const arguments = {};
+    process.argv.slice(2).map( (element) => {
+        const matches = element.match( '--([a-zA-Z0-9]+)=(.*)');
+        if ( matches ){
+            arguments[matches[1]] = matches[2]
+                .replace(/^['"]/, '').replace(/['"]$/, '');
+        }
+    });
+    return arguments;
+})();
+
+const inPath = "infiles" in argv ? argv["infiles"] : "./infiles";
+const outPath = "outfiles" in argv ? argv["outfiles"] : "./outfiles";
+
+
 
 const headerIndex = `<!DOCTYPE html>
 <html lang="en">
@@ -49,9 +63,13 @@ async function parseFiles() {
     const now = new Date().toJSON().substring(0, 19);
     const files = await fsPromises.readdir(inPath);
 
-    files.forEach((course, i) => {
-        parseCourse(course, now);
-    });
+    if ("course" in argv) {
+        parseCourse(argv["course"], now);
+    } else {
+        files.forEach((course, i) => {
+            parseCourse(course, now);
+        });
+    }
 }
 
 async function parseCourse(course, now) {
