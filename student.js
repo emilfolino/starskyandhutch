@@ -1,19 +1,27 @@
-const fsPromises = require('fs').promises;
+#!/usr/bin/env node
+import { promises as fsPromises} from 'fs';
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+// Using node 12. __dirname does not exist. And since linking this code to node_modules we need
+// realpath to js files location. This was the only way i found to do this! :(
+const lib_dir = dirname(fileURLToPath(import.meta.url));
+
 
 const argv = (() => {
-    const arguments = {};
+    const args = {};
     process.argv.slice(2).map( (element) => {
         const matches = element.match( '--([a-zA-Z0-9]+)=(.*)');
         if ( matches ){
-            arguments[matches[1]] = matches[2]
+            args[matches[1]] = matches[2]
                 .replace(/^['"]/, '').replace(/['"]$/, '');
         }
     });
-    return arguments;
+    return args;
 })();
 
-const inPath = "infiles" in argv ? argv["infiles"] : "./infiles";
-const outPath = "outfiles" in argv ? argv["outfiles"] : "./outfiles";
+const inPath = "infiles" in argv ? argv["infiles"] : `${lib_dir}/infiles`;
+const outPath = "outfiles" in argv ? argv["outfiles"] : `${lib_dir}/outfiles`;
 
 
 
@@ -103,7 +111,7 @@ async function createIndex(outCourseDir, kmom, students, submissionsDir) {
     const outDir = outCourseDir + "/" + kmom;
 
     await fsPromises.mkdir(outDir);
-    await fsPromises.copyFile("./public/style.css", outCourseDir + "/style.css");
+    await fsPromises.copyFile(`${lib_dir}/public/style.css`, outCourseDir + "/style.css");
 
     let htmlContent = headerIndex;
 

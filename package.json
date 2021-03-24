@@ -7,6 +7,10 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node app.js"
   },
+  "bin": {
+      "starskyandhutch": "./student.js"
+  },
+  "type": "module",
   "keywords": [],
   "author": "",
   "license": "ISC"
