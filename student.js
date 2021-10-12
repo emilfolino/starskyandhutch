@@ -196,6 +196,10 @@ async function createComparison(
         rightFilesToLoad[studentFileName].push(`${codeRelatedFields[i + 4]}-${codeRelatedFields[i + 5]}`);
     }
 
+    // sort so files are in same order on left and right side.
+    leftFilesToLoad.sort()
+    rightFilesToLoad.sort()
+
     const leftCode = await getCode(fields[0], leftFilesToLoad);
     const rightCode = await getCode(fields[1], rightFilesToLoad);
 
