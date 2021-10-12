@@ -218,7 +218,7 @@ async function getCode(studentName, filesToLoad) {
     const fileNames = Object.keys(filesToLoad);
 
     await Promise.all(fileNames.map(async (file) => {
-        const fileEnding = file.split(".")[2];
+        const fileEnding = file.split(".")[1];
         const fileContent = await fsPromises.readFile(file, 'utf8');
         const linesToHighlight = filesToLoad[file].join(", ");
 
